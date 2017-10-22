@@ -7,9 +7,26 @@
 //
 
 #include <iostream>
+#include "CSR.hpp"
 
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
+    CSR<int> * c;
+    c = new CSR<int>(5);
+  
+    c->setVal(0, 0, 5);
+    c->setVal(1, 1, 6);
+    c->setVal(2, 2, 7);
+    c->setVal(3, 3, 8);
+    c->setVal(4, 4, 9);
+
+    c->print();
+
+    c->setVal(2, 4, 1);
+
+    c->print();
+
+    cout << c->getVal(3, 3) << endl;
+    cout << c->getVal(3, 4) << endl;
+
     return 0;
 }
