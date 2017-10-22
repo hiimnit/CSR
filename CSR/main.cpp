@@ -10,8 +10,8 @@
 #include "CSR.hpp"
 
 int main(int argc, const char * argv[]) {
-    CSR<int> * c;
-    c = new CSR<int>(5);
+    CSR<float> * c;
+    c = new CSR<float>(5);
   
     c->setVal(0, 0, 5);
     c->setVal(1, 1, 6);
@@ -19,10 +19,9 @@ int main(int argc, const char * argv[]) {
     c->setVal(3, 3, 8);
     c->setVal(4, 4, 9);
 
-    c->print();
-
     c->setVal(2, 4, 1);
-
+    c->setVal(2, 1, 2);
+    
     c->print();
 
     cout << c->getVal(3, 3) << endl;

@@ -25,8 +25,10 @@ class CSR {
     int n;
 public:
     CSR(int);
+    CSR(int, int);
     ~CSR();
     
+    void construct(int);
     int getSize() const;
     T getVal(int, int) const;
     bool setVal(int, int, T);

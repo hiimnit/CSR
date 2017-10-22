@@ -14,16 +14,29 @@ CSR<T>::CSR(int n) : n(n) {
         return;
     }
     
-    val = new vector<T>();
-    val->reserve(n * n / 10);
-    col = new vector<int>();
-    col->reserve(n * n / 10);
+    construct(n * n / 10);
+};
+
+template <typename T>
+CSR<T>::CSR(int n, int reserve) : n(n) {
+    if (n <= 0) {
+        return;
+    }
     
-    row = new vector<int>(n + 1, 0); // posledni vzdy = delce val/col
+    construct(reserve);
 };
 
 // TODO:
 // konstruktor s poctem nenulovych pro rezervaci
+template <typename T>
+void CSR<T>::construct(int reserve) {
+    val = new vector<T>();
+    val->reserve(reserve);
+    col = new vector<int>();
+    col->reserve(reserve);
+    
+    row = new vector<int>(n + 1, 0); // posledni vzdy = delce val/col
+};
 
 template <typename T>
 CSR<T>::~CSR() {
@@ -59,8 +72,6 @@ bool CSR<T>::setVal(int x, int y, T value) {
     if (x >= n || y >= n || x < 0 || y < 0)
         return false; // error
     
-    cout << (*row)[x] << " == " << (*row)[x + 1] << endl;
-    
     if ((*row)[x] == (*row)[x + 1]) {
         // vlozit v row[x]
         auto it1 = val->cbegin() + (*row)[x];
@@ -68,24 +79,37 @@ bool CSR<T>::setVal(int x, int y, T value) {
         auto it2 = col->cbegin() + (*row)[x];
         col->emplace(it2, y); // mozna it - 1
         update = true;
-    } else
-        for (auto it = col->begin() + (*row)[x]; it < col->end() + (*row)[x + 1]; ++it)
-            if (*it == y) {
-                // prepsat existujici
-                (*val)[distance(col->begin(), it)] = value;
-                break;
-                // TODO:
-                // odstranit v pripade 0
-            } else if (y > *it) {
-                auto it1 = val->cbegin() + distance(col->begin(), it);
-                val->emplace(it1, value);
-                col->emplace(it, y); // mozna it - 1
-                update = true;
-                break;
+    } else {
+        int i = (*row)[x];
+        if (y < (*col)[i]) {
+            auto it1 = val->cbegin() + i;
+            val->emplace(it1, value);
+            auto it2 = col->cbegin() + i;
+            col->emplace(it2, y); // mozna it - 1
+            update = true;
+        } else {
+//        for (auto it = col->begin() + (*row)[x]; it < col->begin() + (*row)[x + 1]; ++it) {
+            for (; i < (*row)[x + 1]; ++i) {
+                cout << "i : " << i;
+                cout << " y : " << y << endl;
+                if ((*col)[i] == y) {
+                    // prepsat existujici
+                    (*val)[i] = value;
+                    break;
+                    // TODO:
+                    // odstranit v pripade 0
+                } else if (y > (*col)[i]) {
+                    auto it1 = val->cbegin() + i + 1;
+                    val->emplace(it1, value);
+                    auto it2 = col->cbegin() + i + 1;
+                    col->emplace(it2, y); // mozna it - 1
+                    update = true;
+                    break;
+                }
             }
-            // TODO:
-            // *it < y
-        
+        }
+    }
+    
     if (update)
         for_each(row->begin() + x + 1, row->end(), [](int &n){ n++; }); // mozna x + 1
     
@@ -110,4 +134,6 @@ void CSR<T>::print() const {
 };
 
 template class CSR<int>;
+template class CSR<double>;
+template class CSR<float>;
 
