@@ -1,15 +1,15 @@
 //
-//  CSR.cpp
+//  COO.cpp
 //  CSR
 //
-//  Created by Filip Soukup on 22/10/2017.
+//  Created by Filip Soukup on 29/10/2017.
 //  Copyright © 2017 Filip Soukup. All rights reserved.
 //
 
-#include "CSR.hpp"
+#include "COO.hpp"
 
 template <typename T>
-CSR<T>::CSR(int n) : n(n) {
+COO<T>::COO(int n) : n(n) {
     if (n <= 0) {
         return;
     }
@@ -18,7 +18,7 @@ CSR<T>::CSR(int n) : n(n) {
 };
 
 template <typename T>
-CSR<T>::CSR(int n, int reserve) : n(n) {
+COO<T>::COO(int n, int reserve) : n(n) {
     if (n <= 0) {
         return;
     }
@@ -29,17 +29,17 @@ CSR<T>::CSR(int n, int reserve) : n(n) {
 // TODO:
 // konstruktor s poctem nenulovych pro rezervaci
 template <typename T>
-void CSR<T>::construct(int reserve) {
+void COO<T>::construct(int reserve) {
     val = new vector<T>();
     val->reserve(reserve);
     col = new vector<int>();
     col->reserve(reserve);
-    
-    row = new vector<int>(n + 1, 0); // posledni vzdy = delce val/col
+    row = new vector<int>();
+    row->reserve(reserve);
 };
 
 template <typename T>
-CSR<T>::~CSR() {
+COO<T>::~COO() {
     if (row != NULL)
         delete row;
     if (col != NULL)
@@ -49,48 +49,46 @@ CSR<T>::~CSR() {
 };
 
 template <typename T>
-int CSR<T>::getSize() const {
+int COO<T>::getSize() const {
     return n;
 };
 
 template<typename T>
-T CSR<T>::getVal(int x, int y) const {
+T COO<T>::getVal(int x, int y) const {
     if (x >= n || y >= n || x < 0 || y < 0)
         return T{}; // error
-
-    /*
-    for (int i = (*row)[x]; i < (*row)[x + 1]; ++i)
-        if ((*col)[i] == y)
-            return (*val)[i]; // puleni?
-    */
-    int offset = (*row)[x];
-    int d = (*row)[x + 1] - offset;
-    int q;
+    
+    int h;
+    int d = n;
+    int offset = 0;
     while (true) {
-        q = d / 2;
-        if (q == d)
+        h = d / 2;
+        
+        if (((*col)[offset + h] == x || h == 0) && ((*col)[offset + h - 1] != x)) {
+            //TODO
+            offset += h;
             break;
-        
-        if ((*col)[offset + q] == y)
-            return (*val)[offset + q];
-        
-        if ((*col)[offset + q] < y)
-            offset += d - q;
-        
-        d = q;
+        }
+    
+        if ((*col)[offset + h] < x)
+            offset += d - h;
+            
+            
+        d = h;
     }
     
     return T{};
 };
 
 template<typename T>
-bool CSR<T>::setVal(int x, int y, T value) {
+bool COO<T>::setVal(int x, int y, T value) {
     bool update = false;
     
     if (x >= n || y >= n || x < 0 || y < 0)
         return false; // error
-
+    
     // TODO: lepsi porovnani s nulou
+    /*
     if ((*row)[x] == (*row)[x + 1]) {
         if (value != 0) {
             // vlozit v row[x]
@@ -133,16 +131,13 @@ bool CSR<T>::setVal(int x, int y, T value) {
             }
         }
     }
-    
-    if (update)
-        for_each(row->begin() + x + 1, row->end(), [](int &n){ n++; }); // mozna x + 1
-    
+    */
     
     return true;
 };
 
 template<typename T>
-void CSR<T>::print() const {
+void COO<T>::print() const {
     cout << " value : ";
     for (auto it = val->cbegin(); it < val->cend(); ++it)
         cout << *it << ' ';
@@ -158,7 +153,7 @@ void CSR<T>::print() const {
     cout << endl;
 };
 
-template class CSR<int>;
-template class CSR<double>;
-template class CSR<float>;
+template class COO<int>;
+template class COO<double>;
+template class COO<float>;
 
